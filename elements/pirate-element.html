@@ -1,0 +1,487 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/hardware-icons.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <pirate-element></pirate-element>
+
+@demo
+-->
+<dom-module id="pirate-element">
+
+  <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+
+    .author img {
+      float: left;
+      margin-right: 5px;
+      max-height: 100px;
+      max-width: 100px;
+    }
+
+      .player-pad{
+          position:fixed;
+          bottom: 50px;
+          right: 50px;
+      }
+  </style>
+
+  <template>
+      <content></content>
+      <div class="player-pad">
+          <paper-button on-click="handleClick" data-args="37" raised><iron-icon on-click="handleClick" data-args="37" icon="hardware:keyboard-arrow-left"></iron-icon></paper-button>
+          <paper-button on-click="handleClick" data-args="40" raised><iron-icon on-click="handleClick" data-args="40" icon="hardware:keyboard-arrow-down"></iron-icon></paper-button>
+          <paper-button on-click="handleClick" data-args="38" raised><iron-icon on-click="handleClick" data-args="38" icon="hardware:keyboard-arrow-up"></iron-icon></paper-button>
+          <paper-button on-click="handleClick" data-args="39" raised><iron-icon on-click="handleClick" data-args="39" icon="hardware:keyboard-arrow-right"></iron-icon></paper-button>
+      </div>
+
+  </template>
+
+</dom-module>
+
+<script>
+
+    var allowedKeys = {
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down'
+    };
+
+    var Player = function(canvas,canvasDom,assets,gCachedAssets) {
+        // Variables applied to each of our instances go here,
+        // we've provided one for you to get started
+
+        // The image/sprite for our enemies, this uses
+        // a helper we've provided to easily load images
+        var self = this;
+        this.sprite = 'images/gybrushsprites/stepfront_07.png';
+        this.x = 0;
+        this.y = 50;
+        this.width = 150;
+        this.height = 310;
+        this.canvas = canvas;
+        this.frame = 0;
+        this.frames = assets.assets;
+        this.canvasDom = canvasDom;
+        this.canvasDom.style.position = "fixed";
+        this.canvasDom.style.left = 0;
+        this.canvasDom.style.top = 0;
+        this.currentDirection = 'down';
+        this.assets = assets;
+        this.gCachedAssets = gCachedAssets;
+
+        setInterval(function(){
+            self.animate(self.currentDirection);
+        }, 1000/13);
+    };
+
+    Player.prototype.animate = function(direction){
+        this.animateCanvas(direction);
+        // this.handleInput(direction)
+        switch (direction) {
+            case "down":
+                this.moveDown();
+                break;
+            case "up":
+                this.moveUp();
+                break;
+            case "left":
+                this.moveLeft();
+                break;
+            case "right":
+                this.moveRight();
+                break;
+        }
+        this.canvas.clearRect(0,0,this.width, this.height);
+        this.canvas.drawImage(this.gCachedAssets[this.frames[this.frame]],0,0);
+        this.frame = (this.frame + 1) % this.frames.length;
+    };
+
+    Player.prototype.animateCanvas = function(){
+
+        this.canvasDom.style.top = this.y+'px';
+        this.canvasDom.style.left = this.x+'px';
+    };
+
+    Player.prototype.animateDirection = function(direction){
+        this.currentDirection = direction;
+        switch (direction) {
+            case "down":
+                this.moveDown();
+                this.frames = this.assets.assets;
+                this.frame = 0;
+                break;
+            case "up":
+                this.frames = this.assets.assetsUp;
+                this.frame = 0;
+                this.moveUp();
+                break;
+            case "left":
+                this.frames = this.assets.assetsLeft;
+                this.frame = 0;
+                this.moveLeft();
+                break;
+            case "right":
+                this.frames = this.assets.assetsRight;
+                this.frame = 0;
+                this.moveRight();
+                break;
+        }
+    };
+
+    // Parameter: dt, a time delta between ticks
+    Player.prototype.moveUp = function() {
+        if (this.y-10>0)
+            this.y = this.y-10;
+    };
+    Player.prototype.moveDown = function() {
+        if (this.y+350<(window.innerHeight))
+            this.y = this.y+10;
+    };
+    Player.prototype.moveLeft = function() {
+        if (this.x-10>-40)
+            this.x = this.x-10;
+        else
+            this.x = window.innerWidth;
+    };
+    Player.prototype.moveRight = function() {
+        if (this.x+10<(window.innerWidth)-70)
+            this.x = this.x+10;
+        else
+            this.x = -40;
+    };
+
+
+    // Parameter: dt, a time delta between ticks
+    Player.prototype.update = function() {
+        // You should multiply any movement by the dt parameter
+        // which will ensure the game runs at the same speed for
+        // all computers.
+    };
+
+    // Draw the enemy on the screen, required method for game
+    Player.prototype.render = function() {
+        ctx.drawImage(this.gCachedAssets[this.sprite], this.x, this.y);
+    };
+
+    Player.prototype.handleInput = function(key) {
+
+        this.animateDirection(key);
+
+    };
+
+  Polymer({
+
+    is: 'pirate-element',
+
+    properties: {
+
+
+
+      /**
+       * Canvas element to draw the character
+       *
+
+       */
+
+      canvas : {
+        type: Object,
+        value: function() {
+          return undefined
+        }
+      },
+        /**
+         * Context for the canvas (2D)
+         */
+      ctx : {
+        type: Object,
+        value: function() {
+          return undefined
+        }
+      },
+        /**
+         * Flag to count assets loads
+         */
+        loaded : {
+            type: Number,
+            value: function() {
+                return 0
+            }
+        },
+        /**
+         * Object to cache sprites
+         */
+        gCachedAssets : {
+        type: Object,
+        value: function() {
+          return {}
+        }
+      },
+        /**
+         * Array that contains the sprites assets
+         *
+         * @type {}
+         */
+      frames : {
+        type: Array,
+        value: function() {
+          return []
+        }
+      },
+      gSpriteSheets : {
+        type: Object,
+        value: function() {
+          return {}
+        }
+      },
+      gybrush : {
+            type: Object,
+            value: function() {
+                return {}
+            }
+        },
+
+      assets: {
+        type: Object,
+        value: function() {
+          return {
+
+            assets : [  'images/gybrushsprites/stepfront_07.png',
+                'images/gybrushsprites/stepfront_07.png',
+                'images/gybrushsprites/stepfront_08.png',
+                'images/gybrushsprites/stepfront_09.png',
+                'images/gybrushsprites/stepfront_10.png',
+                'images/gybrushsprites/stepfront_11.png',
+                'images/gybrushsprites/stepfront_12.png',
+                'images/gybrushsprites/stepfront_13.png',
+                'images/gybrushsprites/stepfront_14.png',
+                'images/gybrushsprites/stepfront_15.png',
+                'images/gybrushsprites/stepfront_16.png',
+                'images/gybrushsprites/stepfront_17.png',
+                'images/gybrushsprites/stepfront_18.png'
+             ],
+             assetsLeft : [  'images/gybrushsprites/slice31_31.png',
+                'images/gybrushsprites/slice32_32.png',
+                'images/gybrushsprites/slice33_33.png',
+                'images/gybrushsprites/slice34_34.png',
+                'images/gybrushsprites/slice35_35.png',
+                'images/gybrushsprites/slice36_36.png',
+                'images/gybrushsprites/slice37_37.png',
+                'images/gybrushsprites/slice38_38.png',
+                'images/gybrushsprites/slice39_39.png',
+                'images/gybrushsprites/slice40_40.png',
+                'images/gybrushsprites/slice41_41.png',
+                'images/gybrushsprites/slice42_42.png'
+             ],
+             assetsUp : [  'images/gybrushsprites/slice43_43.png',
+                'images/gybrushsprites/slice44_44.png',
+                'images/gybrushsprites/slice45_45.png',
+                'images/gybrushsprites/slice46_46.png',
+                'images/gybrushsprites/slice47_47.png',
+                'images/gybrushsprites/slice48_48.png',
+                'images/gybrushsprites/slice49_49.png',
+                'images/gybrushsprites/slice50_50.png',
+                'images/gybrushsprites/slice51_51.png',
+                'images/gybrushsprites/slice52_52.png',
+                'images/gybrushsprites/slice53_53.png',
+                'images/gybrushsprites/slice54_54.png'
+             ],
+             assetsRight : [  'images/gybrushsprites/slice31i_31.png',
+                'images/gybrushsprites/slice32i_32.png',
+                'images/gybrushsprites/slice33i_33.png',
+                'images/gybrushsprites/slice34i_34.png',
+                'images/gybrushsprites/slice35i_35.png',
+                'images/gybrushsprites/slice36i_36.png',
+                'images/gybrushsprites/slice37i_37.png',
+                'images/gybrushsprites/slice38i_38.png',
+                'images/gybrushsprites/slice39i_39.png',
+                'images/gybrushsprites/slice40i_40.png',
+                'images/gybrushsprites/slice41i_41.png',
+                'images/gybrushsprites/slice42i_42.png'
+                //'/images/gybrushsprites/slice32i_32.png'
+             ]
+          };
+        }
+      }
+
+    },
+
+    // Element Lifecycle
+
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+      // necessary), or kick off any processes the element wants to perform.
+      console.log('ready');
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+        var self = this;
+      console.log('attached');
+      console.log(this.author);
+
+      this.loadAssets(this.assets.assets,this.setup);
+      this.loadAssets(this.assets.assetsLeft,this.setup);
+      this.loadAssets(this.assets.assetsUp,this.setup);
+      this.loadAssets(this.assets.assetsRight,this.setup);
+
+    document.addEventListener('keyup', function(e) {
+        console.log('key UP');
+        console.log(self.gybrush);
+        if (self.gybrush)
+            self.gybrush.handleInput(allowedKeys[e.keyCode]);
+    });
+
+    document.addEventListener('keydown', function(e) {
+        console.log('key Down');
+        console.log(self.gybrush);
+        if (self.gybrush)
+            self.gybrush.handleInput(allowedKeys[e.keyCode]);
+    });
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+      console.log('detached');
+    },
+
+
+
+    /**
+     * Handle move function
+     */
+
+    handleClick: function(e) {
+        var args = e.target.getAttribute('data-args').split(',');
+        if (this.gybrush)
+            this.gybrush.handleInput(allowedKeys[parseInt(args[0])]);
+    },
+
+    /**
+     * Function to load assets and cache in object
+     */
+
+    loadAssets: function(assetList, callbackFcn) {
+        // All the information we need to keep track of
+        // for this batch.
+        var self = this;
+        var loadBatch = {
+            self : self,
+            count: 0,
+            total: assetList.length,
+            cb: callbackFcn
+        };
+
+        for(var i = 0; i < assetList.length; i++) {
+            if(this.gCachedAssets[assetList[i]] == null) {
+                var assetType = this.getAssetTypeFromExtension(assetList[i]);
+
+                if(assetType === 0) { // Asset is an image
+                    var img = new Image();
+                    img.onload = function () {
+                        self.onLoadedCallback(img, loadBatch);
+                    };
+                    img.src = assetList[i];
+                    this.gCachedAssets[assetList[i]] = img;
+
+                } else if(assetType === 1) { // Asset is Javascript
+                    var fileref = document.createElement('script');
+                    fileref.setAttribute("type", "text/javascript");
+                    fileref.onload = function (e){
+                        self.onLoadedCallback(fileref,loadBatch);
+                    };
+                    fileref.setAttribute("src", filename);
+                    document.getElementsByTagName("head")[0].appendChild(fileref);
+                    this.gCachedAssets[assetList[i]] = fileref;
+                }
+
+            } else { // Asset is already loaded
+                this.onLoadedCallback(this.gCachedAssets[assetList[i]], loadBatch);
+            }
+        }
+        console.log('assets--->',this.gCachedAssets);
+    },
+
+    onLoadedCallback: function(asset, batch) {
+        // If the entire batch has been loaded,
+        // call the callback.
+        batch.count++;
+        if(batch.count == batch.total) {
+            batch.cb(asset);
+        }
+    },
+
+    getAssetTypeFromExtension : function(fname) {
+        if(fname.indexOf('.jpg') != -1 || fname.indexOf('.jpeg') != -1 || fname.indexOf('.png') != -1 || fname.indexOf('.gif') != -1 || fname.indexOf('.wp') != -1) {
+            // It's an image!
+            return 0;
+        }
+
+        if(fname.indexOf('.js') != -1 || fname.indexOf('.json') != -1) {
+            // It's javascript!
+            return 1;
+        }
+
+        return -1;
+    },
+
+    setup : function() {
+
+
+        for (var asset in this.self.gCachedAssets){
+
+            this.self.frames.push(this.self.gCachedAssets[asset]);
+
+        }
+        this.self.loaded++;
+        if (this.self.loaded == 4){
+            body = document.body;
+            canvas = document.createElement('canvas');
+
+            ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            canvas.width = 150;
+            canvas.height = 310;
+
+            body.appendChild(canvas);
+            this.self.gybrush = new Player(ctx,canvas,this.self.assets,this.self.gCachedAssets);
+        }
+
+    }
+
+  });
+
+</script>
