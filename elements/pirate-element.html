@@ -9,8 +9,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
 
 <!--
 An element providing a solution to no problem in particular.
@@ -36,20 +38,30 @@ Example:
       max-width: 100px;
     }
 
-      .player-pad{
-          position:fixed;
-          bottom: 50px;
-          right: 50px;
-      }
+    .player-pad{
+        position:fixed;
+        bottom: 50px;
+        right: 50px;
+    }
+    paper-button.indigo {
+      background-color: var(--paper-indigo-500);
+      min-width: 3.14em;
+      color: white;
+      --paper-button-raised-keyboard-focus: {
+        background-color: var(--paper-pink-a200) !important;
+        color: white !important;
+      };
+    }
   </style>
 
   <template>
       <content></content>
       <div class="player-pad">
-          <paper-button on-click="handleClick" data-args="37" raised><iron-icon on-click="handleClick" data-args="37" icon="hardware:keyboard-arrow-left"></iron-icon></paper-button>
-          <paper-button on-click="handleClick" data-args="40" raised><iron-icon on-click="handleClick" data-args="40" icon="hardware:keyboard-arrow-down"></iron-icon></paper-button>
-          <paper-button on-click="handleClick" data-args="38" raised><iron-icon on-click="handleClick" data-args="38" icon="hardware:keyboard-arrow-up"></iron-icon></paper-button>
-          <paper-button on-click="handleClick" data-args="39" raised><iron-icon on-click="handleClick" data-args="39" icon="hardware:keyboard-arrow-right"></iron-icon></paper-button>
+
+          <paper-button on-click="handleClick" data-args="37" class="custom indigo" raised><iron-icon on-click="handleClick" data-args="37" icon="hardware:keyboard-arrow-left"></iron-icon></paper-button>
+          <paper-button on-click="handleClick" data-args="40" class="custom indigo" raised><iron-icon on-click="handleClick" data-args="40" icon="hardware:keyboard-arrow-down"></iron-icon></paper-button>
+          <paper-button on-click="handleClick" data-args="38" class="custom indigo" raised><iron-icon on-click="handleClick" data-args="38" icon="hardware:keyboard-arrow-up"></iron-icon></paper-button>
+          <paper-button on-click="handleClick" data-args="39" class="custom indigo" raised><iron-icon on-click="handleClick" data-args="39" icon="hardware:keyboard-arrow-right"></iron-icon></paper-button>
       </div>
 
   </template>
@@ -72,19 +84,19 @@ Example:
         // The image/sprite for our enemies, this uses
         // a helper we've provided to easily load images
         var self = this;
-        this.sprite = 'images/gybrushsprites/stepfront_07.png';
+        this.sprite = 'images/gybrushsprites/slice31i_31.png';
         this.x = 0;
-        this.y = 50;
+        this.y = 70;
         this.width = 150;
         this.height = 310;
         this.canvas = canvas;
         this.frame = 0;
-        this.frames = assets.assets;
+        this.frames = assets.assetsRight;
         this.canvasDom = canvasDom;
         this.canvasDom.style.position = "fixed";
         this.canvasDom.style.left = 0;
         this.canvasDom.style.top = 0;
-        this.currentDirection = 'down';
+        this.currentDirection = 'right';
         this.assets = assets;
         this.gCachedAssets = gCachedAssets;
 
